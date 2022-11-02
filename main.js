@@ -13,3 +13,10 @@ function intro(){
   } ,5000)
 }
 intro()
+
+function go() {
+    document.getElementById('loginpg').style.opacity ='0'
+      setTimeout(()=>{document.getElementById('loginpg').style.display ='none'
+      document.getElementById('menu').style.display ='flex';
+      document.getElementById('menu').style.opacity ='1'},500)
+}
