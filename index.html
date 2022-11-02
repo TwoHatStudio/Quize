@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Quicksand:300,500" rel="stylesheet">
+  
   <title>HTML</title>
-  
+
   <!-- HTML -->
-  
+
 
   <!-- Custom Styles -->
   <link rel="stylesheet" href="style.css">
@@ -18,18 +21,28 @@
 
 <body>
   <!-- Project -->
+  <div id="menu">
+    <h1 style="font-family: 'Poppins', sans-serif;">QUIZE.</h1>
+    <button>PLAY</button>
+    <button>INSTRUCTION</button>
+    <button>HIGH SCORE</button>
+    <button>ADD A QUESTION</button>
+  </div>
   <div class="loginpage logo" id="loginpg">
-    <h1>QUIZE.</h1>
+    <h1 style="font-family: 'Poppins', sans-serif;">QUIZE.</h1>
     <p><b>Pick a Username:</b><br><br></p>
     <input placeholder="username"><br><br>
-    <button>Go!</button>
+    <button onclick="go()">Go!</button>
   </div>
   <div id="introcont" class="intro-container">
-  <div class="txt-slide">
-    <div class="logo" id="logointro"><div>QUIZE.</div>
-    <p>Connecting...</p></div>
-  </div>
+    <div class="txt-slide">
+      <div class="logo" id="logointro">
+        <div>QUIZE.</div>
+        <p>Connecting...</p>
+      </div>
+    </div>
   </div>
   <script src="main.js"></script>
 </body>
+
 </html>
