@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
   <link href="https://fonts.googleapis.com/css?family=Quicksand:300,500" rel="stylesheet">
   
   
@@ -18,13 +19,24 @@
     <button onclick="go()">PLAY</button>
     <button onclick="show_instruction()">INSTRUCTION</button>
     <button onclick="show_leaderboard()">HIGH SCORE</button>
-    <button onclick="show_addq()">ADD A QUESTION</button>
+    <button onclick="show_addq('m')">ADD A QUESTION</button>
+    <button onclick="show_admin_opt()">ADMIN</button>
   </div>
   <div class="loginpage logo" id="loginpg">
     <h1 style="font-family: 'Poppins', sans-serif;">QUIZE.</h1>
     <p><b>Pick a Username:</b><br><br></p>
     <input id="name" placeholder="username"><br><br>
     <button onclick="play()">Go!</button>
+  </div>
+  <div class="admin_opt" id="admin_opt">
+    <button onclick="show_addq('a')">ADD A QUESTION</button>
+    <button onclick="show_admin_mq()">MANAGE QUESTIONS</button>
+
+  </div>
+  <div class="admin_opt" id="admin_q">
+    <button onclick="show_admin_question()">QUESTION</button>
+    <button onclick="show_admin_leaderboard()">LEADER BOARD</button>
+
   </div>
   <div class="question" id="questions">
     <div><h1 id="question">Question</h1></div>
@@ -49,6 +61,21 @@
         <div>Name</div>
         <div>Date</div>
         <div>Score</div>
+      </li>
+    </div>
+  </div>
+  <div id="manq" class="leaderboard">
+    <p onclick="lback_menu()">Back</p><br><br><p style="font-size: 100px;">QUESTIONS</p>
+    <div id="mcon" class="lcontainer">
+      <li class="lheader">
+        <div>Q. No.</div>
+        <div>Question</div>
+        <div>Opt. 1</div>
+        <div>Opt. 2</div>
+        <div>Opt. 3</div>
+        <div>Opt. 4</div>
+        <div>Correct</div>
+        <div>ACTION</div>
       </li>
     </div>
   </div>
@@ -78,10 +105,17 @@
     
   let ca=null
   let n=null
+  let ct = ''
 
-  function show_addq(){
-    document.getElementById('adq').style.display="flex"
-    document.getElementById('menu').style.display ='none'
+  function show_addq(t){
+    if(t=='m'){
+      document.getElementById('adq').style.display="flex"
+      document.getElementById('menu').style.display ='none'
+    }else if (t=='a'){
+      document.getElementById('adq').style.display="flex"
+      document.getElementById('admin_opt').style.display ='none'
+
+    }
 
   }
   function addq(){
@@ -92,7 +126,12 @@
     document.getElementById("d").value,
     document.getElementById("can").value)
     document.getElementById('adq').style.display="none"
-    document.getElementById('menu').style.display ='flex'
+    if(ct=='m'){
+      document.getElementById('menu').style.display ='flex'
+    }else if(ct =='a'){
+      document.getElementById('admin_opt').style.display ='flex'
+
+    }
 
   }
   
@@ -103,6 +142,10 @@
   }
   function display_leaderboard(data){
     document.getElementById("lcon").insertAdjacentHTML("beforeend",data)
+  }
+  
+  function display_manage(data){
+    document.getElementById("mcon").insertAdjacentHTML("beforeend",data)
   }
   function show_leaderboard(){
     pywebview.api.leaderboard().then(display_leaderboard)
@@ -148,7 +191,12 @@ function play(){
   document.getElementById('loginpg').style.opacity ='0'
   pywebview.api.play(document.getElementById("name").value).then(manage)
 }
-
+function show_admin_mq(){
+  
+  document.getElementById('manq').style.display="flex"
+  document.getElementById('admin_opt').style.display ='none'
+  pywebview.api.disp_managequestion().then(display_manage)
+}
 function manage(data){
   if(data.type==="q"){
 
@@ -191,6 +239,21 @@ function manage(data){
       document.getElementById('menu').style.opacity ='1';
     },2000)
   }
+}
+function show_admin_opt(){
+  document.getElementById("menu").style.display="none";
+  document.getElementById("admin_opt").style.display="flex";
+
+}
+function update_q(qn){
+  pywebview.api.updatequestion(qn,
+  document.getElementById("q-"+qn).innerText,
+  document.getElementById("a-"+qn).innerText,
+  document.getElementById("b-"+qn).innerText,
+  document.getElementById("c-"+qn).innerText,
+  document.getElementById("d-"+qn).innerText,
+  document.getElementById("ca-"+qn).innerText,
+  ).then(display_manage)
 }
 function select(o){
   console.log(o)
@@ -243,6 +306,20 @@ function select(o){
     text-align: center;
     color: white ;
   }
+  .lcontainer  button{
+    width: 65px;
+  border-radius: 500px;
+  color:white;
+  font-weight: bold;
+  background-color: rgba(0,0,0,0);
+  border: 2px solid white;
+  transition: all 0.5s ease-in-out ;
+  
+}
+.lcontainer  button:hover{
+  background-color: white ;
+  color: black ;
+}
   .lcontainer{
     display: flex;
     flex-direction: column;
@@ -294,7 +371,11 @@ function select(o){
     color: white ;
 
   }
-  .indiv,.inp,.inbutton{
+  .indiv,.inp{
+    margin-top:100px ;
+
+  }
+  .inbutton{
     margin-top:100px ;
   margin-top: 50px;
   border-radius: 500px;
@@ -320,6 +401,30 @@ function select(o){
     align-items: center;
     
   }
+  .admin_opt{
+    width:100%;
+    height:100%;
+    background-color: #181818;
+    color: white ;
+    display:none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .admin_opt button{
+  margin-top: 50px;
+  border-radius: 500px;
+  color:white;
+  background-color: rgba(0,0,0,0);
+  border: 2px solid white;
+  transition: all 0.5s ease-in-out ;
+  
+}
+
+.admin_opt button:hover{
+  background-color: white ;
+  color: black ;
+}
   #question{
     margin-bottom: 250px;
   }
@@ -408,7 +513,7 @@ function select(o){
   transition: all 0.2s ease-in-out;
   margin-top: 0px;
   animation-name: scrolltxt;
-  animation-duration: 3s;
+  animation-duration: 5s;
 }
 .logo div{
   
