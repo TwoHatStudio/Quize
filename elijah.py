@@ -193,121 +193,62 @@ class api():
         mycursor.execute('SELECT * FROM QUIZ')
         for i in mycursor:
             print(i)
-                
-    def updatequestion():
-        while True:
-            qn = int(input('Enter the question no.'))
-            mycursor.execute('SELECT * FROM QUIZ WHERE QN={}'.format(qn))
-            selectedq = mycursor.fetchone()
-            
-            if selectedq == None:
-                print('Question not found, try again')
 
-            else:
-                qn,question,opta,optb,optc,optd,correct,chosen=selectedq
-                print('Is this your question?')
-                print()
-                print(question)
-                print('A:',opta)
-                print('B:',optb)
-                print('C:',optc)
-                print('D:',optd)
-                print('Correct Answer:',correct)
+    def disp_managequestion(self):
+        mycursor.execute('SELECT * FROM QUIZ')
+        selectedq = mycursor.fetchall()
+        html =""
+        for i in selectedq:
+            html+='''
                 
-                o = input('Y/N: ')
-                if o == 'N':
-                    pass
-                else:
-                    print('Which field to update?')
-                    print('1. Question')
-                    print('2. Options')
-                    print('3. Correct Option:')
-                    c = int(input('Enter the field (1/2/3): '))
-                    if c == 1:
-                        try:
-                            newquestion = input('Enter the updated question: ')
-                            mycursor.execute('UPDATE QUIZ SET QUESTION="{}" WHERE QN={}'.format(newquestion,qn))
-                            mydb.commit()
-                            print('Question Successfully Updated')
-                            break
-                        except:
-                            print('Error')
+                <li class="lrow">
                         
-                    elif c == 2:
-                        try:
-                            newopta = input('Enter Option A: ')
-                            newoptb = input('Enter Option B: ')
-                            newoptc = input('Enter Option C: ')
-                            newoptd = input('Enter Option D: ')
-                            correct = input('Enter the correct option (A/B/C/D): ')
-                            if correct == 'A':
-                                correct = newopta
-                            elif correct == 'B':
-                                correct = newoptb
-                            elif correct == 'C':
-                                correct = newoptc
-                            elif correct == 'D':
-                                correct = newoptd
-                            else:
-                                print('Error, try again')
-                                pass
-                            
-                            mycursor.execute("UPDATE QUIZ SET OPTA='{}',OPTB='{}',OPTC='{}',OPTD='{}',CORRECT='{}' WHERE QN={}".format(newopta,newoptb,newoptc,newoptd,correct,qn))
-                            mydb.commit()
-                            print('Choices Successfully Updated')
-                            break
-                        
-                        except:
-                            print('Error, try Again')
+                <div>{}</div>
+                <div id="q-{}" contenteditable="true">{}</div>
+                <div id="a-{}" contenteditable="true">{}</div>
+                <div id="b-{}" contenteditable="true">{}</div>
+                <div id="c-{}" contenteditable="true">{}</div>
+                <div id="d-{}" contenteditable="true">{}</div>
+                <div id="ca-{}" contenteditable="true">{}</div>
+                <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button id="{}"><i class="fi-rr-trash"></i></button></div>
+                </li>
                     
-                    elif c == 3:
-                        newcorrect = input('Which option is correct? (A/B/C/D): ')
-                        if newcorrect == 'A':
-                            newcorrect = opta
-                        elif newcorrect == 'B':
-                            newcorrect = optb
-                        elif newcorrect == 'C':
-                            newcorrect = optc
-                        elif newcorrect == 'D':
-                            newcorrect = optd
-                        else:
-                            print('Invalid Option, try again')
-                            pass
+            '''.format(i[0],i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0])
+        print(html)
+
+        return html
+
+                
+    def updatequestion(self,qn,q,a,b,c,d,co):
+        try:
+            print("Updating")
+            mycursor.execute("UPDATE Quiz set QUESTION='{}',OPTA='{}',OPTB='{}',OPTC='{}',OPTD='{}',CORRECT='{}' WHERE QN={}".format(q,a,b,c,d,co,qn))
+            mydb.commit()
+            mycursor.execute('SELECT * FROM QUIZ')
+            selectedq = mycursor.fetchall()
+            html =""
+            for i in selectedq:
+                html+='''
+                    
+                    <li class="lrow">
+                            
+                    <div>{}</div>
+                    <div id="q-{}" contenteditable="true">{}</div>
+                    <div id="a-{}" contenteditable="true">{}</div>
+                    <div id="b-{}" contenteditable="true">{}</div>
+                    <div id="c-{}" contenteditable="true">{}</div>
+                    <div id="d-{}" contenteditable="true">{}</div>
+                    <div id="ca-{}" contenteditable="true">{}</div>
+                    <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button id="{}"><i class="fi-rr-trash"></i></button></div>
+                    </li>
                         
-                        mycursor.execute("UPDATE QUIZ SET CORRECT='{}' WHERE QN={}".format(correct))
-                        mydb.commit()
-                        print('Correct Answer Successfully Updated')
-                        break
+                '''.format(i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0],i[0])
+            print(html)
 
-    def deletequestion():
-        while True:
-            qn = int(input('Enter the question no.'))
-            mycursor.execute('SELECT * FROM QUIZ WHERE QN={}'.format(qn))
-            selectedq = mycursor.fetchone()
-            
-            if selectedq == None:
-                print('Question not found, try again')
-
-            else:
-                qn,question,opta,optb,optc,optd,correct,chosen=selectedq
-                print('Is this your question?')
-                print()
-                print(question)
-                print('A:',opta)
-                print('B:',optb)
-                print('C:',optc)
-                print('D:',optd)
-                print('Correct Answer:',correct)
-                
-                o = input('Y/N: ')
-                
-                if o == 'Y' or o == 'y':
-                    mycursor.execute('DELETE FROM QUIZ WHERE QN={}'.format(qn))
-                    mydb.commit()
-                    print('Question Successfully Deleted')
-            
-                else:
-                    pass
+            return html
+        except Exception as e:
+            print(e)
+        
         
     def adminleaderboard():
         while True:
