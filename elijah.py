@@ -1,8 +1,9 @@
 import mysql.connector
+import uuid
 import random
 from datetime import date
 import webview
-mydb = mysql.connector.connect(host='localhost',user='root',passwd='2005',db='project')
+mydb = mysql.connector.connect(host='localhost',user='root',passwd='',db='project')
 if mydb.is_connected()==True:
     print('Database Established')
     print()
@@ -32,7 +33,8 @@ mydb.commit()
 mycursor.execute("INSERT INTO QUIZ VALUES(10,'How many time zones are there in Russia?','9','10','11','12','11','N')")
 mydb.commit()'''
 
-#mycursor.execute("CREATE TABLE LEADERBOARD(Name varchar(50), Score int, Date date)")
+#mycursor.execute("CREATE TABLE LEADERBOARD(Name varchar(50), Score int, Date date, ID varchar(50) primary key)")
+
 class api():
     global mydb,mycursor,roundc,scorec,pname,cc,colors
     pname=""
@@ -41,7 +43,7 @@ class api():
     colors = ["#E83737","#31CF1B","#3780E8","#B2CA06","#E837E7","#E83737"]
     cc=0
 
-    def connect():
+    def connect(self):
         return None
 
     def play(self,name):
@@ -52,7 +54,6 @@ class api():
         roundc=1
         scorec=0
         if q is None: 
-            #self.savetoleaderboard(pname,scorec,date.today())
             self.resetquestions()
             return{"type": "won","s": scorec}
         else:
@@ -87,7 +88,7 @@ class api():
                 q=self.question_select()
                 if q is None:
                     print("Won") 
-                    scorec +=(roundc-2)*5
+                    scorec +=((roundc)*5-5)
                     self.savetoleaderboard(pname,scorec,date.today())
                     self.resetquestions()
                     return{"type": "won","s": scorec}   
@@ -100,14 +101,11 @@ class api():
                     return {"type":"q","q":q,"r":roundc,"c":colors[cc]}
             else:
                 print("Lost")
-                scorec +=(roundc-2)*5
+                scorec +=((roundc)*5-5)
                 self.savetoleaderboard(pname,scorec,date.today())
                 self.resetquestions()
                 return {"type":"wa","s": scorec}
         except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
             print(e)
 
 
@@ -117,7 +115,9 @@ class api():
         global pname,scorec
         try:
             print("Saving")
-            mycursor.execute('INSERT INTO LEADERBOARD VALUES("{}",{},"{}")'.format(pname,scorec,date))
+            id = uuid.uuid4()
+            print(id)
+            mycursor.execute('INSERT INTO LEADERBOARD VALUES("{}",{},"{}","{}")'.format(pname,scorec,date,id))
             mydb.commit()
         except Exception as e:
             print(e)
@@ -152,47 +152,7 @@ class api():
         mydb.commit()
         print('Data Successfully Added')
             
-    def admin():
-        while True:
-            print('ADMIN MENU')
-            print('1. Questions')
-            print('2. Leaderboard')
-            print('3. Back')
-            o = int(input('Enter your choice: '))
-            if o == 1:
-                adminquestions()
-            elif o == 2:
-                adminleaderboard()
-            elif o == 3:
-                break
-            else:
-                print('Invalid Option\n')
 
-    def adminquestions():
-        while True:
-            print('ADMIN QUESTIONS MENU:')
-            print('1. Display the questions')
-            print('2. Add a question')
-            print('3. Update a question')
-            print('4. Delete a question')
-            o = int(input('Enter your choice: '))
-            if o == 1:
-                display()
-            elif o == 2:
-                addaquestion()
-            elif o == 3:
-                updatequestion()
-            elif o == 4:
-                deletequestion()
-            elif o == 5:
-                break
-            else:
-                print('Invalid Option\n')
-                
-    def display():
-        mycursor.execute('SELECT * FROM QUIZ')
-        for i in mycursor:
-            print(i)
 
     def disp_managequestion(self):
         mycursor.execute('SELECT * FROM QUIZ')
@@ -200,20 +160,20 @@ class api():
         html =""
         for i in selectedq:
             html+='''
-                
-                <li class="lrow">
-                        
-                <div>{}</div>
-                <div id="q-{}" contenteditable="true">{}</div>
-                <div id="a-{}" contenteditable="true">{}</div>
-                <div id="b-{}" contenteditable="true">{}</div>
-                <div id="c-{}" contenteditable="true">{}</div>
-                <div id="d-{}" contenteditable="true">{}</div>
-                <div id="ca-{}" contenteditable="true">{}</div>
-                <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button id="{}"><i class="fi-rr-trash"></i></button></div>
-                </li>
                     
-            '''.format(i[0],i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0])
+                    <li class="lrow">
+                            
+                    <div>{}</div>
+                    <div id="q-{}" contenteditable="true">{}</div>
+                    <div id="a-{}" contenteditable="true">{}</div>
+                    <div id="b-{}" contenteditable="true">{}</div>
+                    <div id="c-{}" contenteditable="true">{}</div>
+                    <div id="d-{}" contenteditable="true">{}</div>
+                    <div id="ca-{}" contenteditable="true">{}</div>
+                    <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button onclick="deleteq(this.id)" id="{}"><i class="fi-rr-trash"></i></button></div>
+                    </li>
+                        
+                '''.format(i[0],i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0])
         print(html)
 
         return html
@@ -239,50 +199,138 @@ class api():
                     <div id="c-{}" contenteditable="true">{}</div>
                     <div id="d-{}" contenteditable="true">{}</div>
                     <div id="ca-{}" contenteditable="true">{}</div>
-                    <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button id="{}"><i class="fi-rr-trash"></i></button></div>
+                    <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button onclick="deleteq(this.id)" id="{}"><i class="fi-rr-trash"></i></button></div>
                     </li>
                         
-                '''.format(i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0],i[0])
+                '''.format(i[0],i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0])
             print(html)
 
             return html
         except Exception as e:
             print(e)
-        
-        
-    def adminleaderboard():
-        while True:
-            print('ADMIN LEADERBOARD MENU: ')
-            print('1. Display Leaderboard')
-            print('2. Update Score')
-            print('3. Delete Score')
-            o = int(input('Enter your choice: '))
-            if o == 1:
-                leaderboard()
-            elif o == 2:
-                updatescore()
-            elif o == 3:
-                deleterecord()
-            elif o == 4:
-                break
-            else:
-                print('Invalid Option')
-
-    def updatescore():
-        name = input('Enter the name of the person to be updated: ')
-        score = int(input('Enter score: '))
-        mycursor.execute("UPDATE LEADERBOARD SET SCORE={} WHERE NAME='{}'".format(score,name))
-        mydb.commit()
-        print('Score updated successfully')
-        if mycursor.rowcount == 0:
-            print('Name not found, Try again')
             
+    def deletequestion(self,qn):
+        try:
+            mycursor.execute("delete from quiz where qn='{}'".format(qn))
+            mydb.commit()
+            html = self.disp_managequestion()
+            return html
+        except Exception as e:
+            print(e)
+    
+    def searchquestion(self,q):
+        try:
+            print("search")
+            mycursor.execute("SELECT * FROM QUIZ WHERE QUESTION LIKE'{}%'".format(q))
+            selectedq = mycursor.fetchall()
+            print(q)
+            html =""
+            for i in selectedq:
+                html+='''
+                    
+                    <li class="lrow">
+                            
+                    <div>{}</div>
+                    <div id="q-{}" contenteditable="true">{}</div>
+                    <div id="a-{}" contenteditable="true">{}</div>
+                    <div id="b-{}" contenteditable="true">{}</div>
+                    <div id="c-{}" contenteditable="true">{}</div>
+                    <div id="d-{}" contenteditable="true">{}</div>
+                    <div id="ca-{}" contenteditable="true">{}</div>
+                    <div><button id="{}" onclick="update_q(this.id)"><i class="fi-rr-upload"></i></button><br><button onclick="deleteq(this.id)" id="{}"><i class="fi-rr-trash"></i></button></div>
+                    </li>
+                        
+                '''.format(i[0],i[0],i[1],i[0],i[2],i[0],i[3],i[0],i[4],i[0],i[5],i[0],i[6],i[0],i[0])
+            print(html)
 
-    def deleterecord():
-        name = input('Enter the name of the person to be deleted: ')
-        mycursor.execute("DELETE FROM LEADERBOARD WHERE NAME='{}'".format(name))
-        if mycursor.rowcount == 0:
-            print('Name not found')
+            return html
+        
+        except Exception as e:
+            print(e)
+
+    def disp_managelead(self):
+        mycursor.execute('SELECT * FROM LEADERBOARD')
+        selectedq = mycursor.fetchall()
+        html =""
+        for i in selectedq:
+            html+='''
+                    
+                    <li class="lrow">
+                            
+                    <div>{}</div>
+                    <div>{}</div>
+                    <div id="sc-{}" contenteditable="true">{}</div>
+                    <div><button id="{}" onclick="update_l(this.id)"><i class="fi-rr-upload"></i></button><br><button onclick="deletel(this.id)" id="{}"><i class="fi-rr-trash"></i></button></div>
+                    </li>
+                        
+                '''.format(i[0],i[2],i[3],i[1],i[3],i[3])
+        print(html)
+
+        return html
+
+    def updatescore(self,id,s):
+        try:
+            print(s)
+            mycursor.execute("UPDATE LEADERBOARD set Score='{}' WHERE id='{}'".format(s,id))
+            mydb.commit()
+            mycursor.execute('SELECT * FROM LEADERBOARD')
+            selectedq = mycursor.fetchall()
+            html =""
+            for i in selectedq:
+                html+='''
+                    
+                    <li class="lrow">
+                            
+                    <div>{}</div>
+                    <div>{}</div>
+                    <div id="sc-{}" contenteditable="true">{}</div>
+                    <div><button id="{}" onclick="update_l(this.id)"><i class="fi-rr-upload"></i></button><br><button onclick="deletel(this.id)" id="{}"><i class="fi-rr-trash"></i></button></div>
+                    </li>
+                        
+                '''.format(i[0],i[2],i[3],i[1],i[3],i[3])
+            print(html)
+
+            return html
+        except Exception as e:
+            print(e)
+            
+    def deletescore(self,id):
+        try:
+            print(id)
+            mycursor.execute("delete from LEADERBOARD where id='{}'".format(id))
+            mydb.commit()
+            html = self.disp_managelead()
+            return html
+        except Exception as e:
+            print(e)
+    
+    def searchscore(self,n):
+        try:
+            print("search")
+            mycursor.execute("SELECT * FROM LEADERBOARD WHERE NAME LIKE'{}%'".format(n))
+            selectedq = mycursor.fetchall()
+            html =""
+            for i in selectedq:
+                html+='''
+                    
+                    <li class="lrow">
+                            
+                    <div>{}</div>
+                    <div>{}</div>
+                    <div id="sc-{}" contenteditable="true">{}</div>
+                    <div><button id="{}" onclick="update_l(this.id)"><i class="fi-rr-upload"></i></button><br><button onclick="deletel(this.id)" id="{}"><i class="fi-rr-trash"></i></button></div>
+                    </li>
+                        
+                '''.format(i[0],i[2],i[3],i[1],i[3],i[3])
+            print(html)
+
+            return html
+        
+        except Exception as e:
+            print(e)
+      
+
+   
             
 
 api = api()
@@ -290,4 +338,4 @@ ht = ''
 with open('elijah.html', 'r') as f:
     ht = str(f.read())
     window = webview.create_window('Computer Project', html=ht, js_api=api)
-    webview.start(debug=True,gui='edgehtml')
+    webview.start(debug=True,gui='egdechromium')
