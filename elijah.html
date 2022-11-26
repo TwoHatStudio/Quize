@@ -15,27 +15,24 @@
 
 <body>
   <div id="menu">
-    <h1 style="font-family: 'Poppins', sans-serif;">QUIZE.</h1>
+    <h1 style="font-family: 'Poppins', sans-serif;">QUIZ.</h1>
     <button onclick="go()">PLAY</button>
     <button onclick="show_instruction()">INSTRUCTION</button>
     <button onclick="show_leaderboard()">HIGH SCORE</button>
-    <button onclick="show_addq('m')">ADD A QUESTION</button>
+    <button onclick="show_addq()">ADD A QUESTION</button>
     <button onclick="show_admin_opt()">ADMIN</button>
   </div>
   <div class="loginpage logo" id="loginpg">
-    <h1 style="font-family: 'Poppins', sans-serif;">QUIZE.</h1>
+    <i onclick="backbt('loginpg','menu')" style="position:absolute;top:10px;left:10px;z-index:2;" class="fi-rr-angle-left"></i>
+    <h1 style="font-family: 'Poppins', sans-serif;">QUIZ.</h1>
     <p><b>Pick a Username:</b><br><br></p>
     <input id="name" placeholder="username"><br><br>
     <button onclick="play()">Go!</button>
   </div>
   <div class="admin_opt" id="admin_opt">
-    <button onclick="show_addq('a')">ADD A QUESTION</button>
+    <p onclick="backbt('admin_opt','menu')" class="backtxt"><i class="fi-rr-angle-left"></i></p>
     <button onclick="show_admin_mq()">MANAGE QUESTIONS</button>
-
-  </div>
-  <div class="admin_opt" id="admin_q">
-    <button onclick="show_admin_question()">QUESTION</button>
-    <button onclick="show_admin_leaderboard()">LEADER BOARD</button>
+    <button onclick="show_admin_ml()"> MANAGE LEADERBOARD</button>
 
   </div>
   <div class="question" id="questions">
@@ -55,7 +52,7 @@
     <h3 id="score">Score:0</h3>
   </div>
   <div id="lead" class="leaderboard">
-    <p onclick="lback_menu()">Back</p><br><br><p style="font-size: 100px;">LEADERBOARD</p>
+    <p onclick="lback_menu()"class="backtxt"><i class="fi-rr-angle-left"></i></p><br><br><p style="font-size: 100px;">LEADERBOARD</p>
     <div id="lcon" class="lcontainer">
       <li class="lheader">
         <div>Name</div>
@@ -64,8 +61,9 @@
       </li>
     </div>
   </div>
-  <div id="manq" class="leaderboard">
-    <p onclick="lback_menu()">Back</p><br><br><p style="font-size: 100px;">QUESTIONS</p>
+  <div id="manq" class="manq">
+    <p onclick="backbt('manq','admin_opt')" class="backtxt"><i class="fi-rr-angle-left"></i></p><br><br><p style="font-size: 100px;">QUESTIONS</p>
+    <input id="qser" oninput="searchq()"  placeholder="Search a Question">
     <div id="mcon" class="lcontainer">
       <li class="lheader">
         <div>Q. No.</div>
@@ -77,9 +75,24 @@
         <div>Correct</div>
         <div>ACTION</div>
       </li>
+      <div id="qincon"></div>
+    </div>
+  </div>
+  <div id="manal" class="manal">
+    <p onclick="backbt('manal','admin_opt')" class="backtxtl"><i class="fi-rr-angle-left"></i></p><br><br><p style="font-size: 100px;">LEADERBOARD</p>
+    <input id="lser" oninput="searchl()"  placeholder="Search By Name">
+    <div id="mcon" class="lmcontainer">
+      <li class="lheader">
+        <div>Name</div>
+        <div>Date</div>
+        <div>Score</div>
+        <div>ACTION</div>
+      </li>
+      <div id="lincon"></div>
     </div>
   </div>
   <div id="adq" class="addq">
+  <p onclick="backbt('adq','menu')" class="backtxt"><i class="fi-rr-angle-left"></i></p>
     <input id="q" placeholder="Question">
     <input id="a"  placeholder="Option 1">
     <input id="b"  placeholder="Option 2">
@@ -96,8 +109,8 @@
   <div id="introcont" class="intro-container">
     <div class="txt-slide">
       <div class="logo" id="logointro">
-        <div>QUIZLE</div>
-        <p>Connecting...</p>
+        <div>QUIZ.</div>
+        <p>A project by Elijah and Siddhanth of 12 AM</p>
       </div>
     </div>
   </div>
@@ -106,18 +119,22 @@
   let ca=null
   let n=null
   let ct = ''
+  
+  function backbt(h,f){
+      document.getElementById(f).style.display="flex"
+      document.getElementById(h).style.display ='none'
+      }
 
-  function show_addq(t){
-    if(t=='m'){
+  function show_addq(){
       document.getElementById('adq').style.display="flex"
       document.getElementById('menu').style.display ='none'
-    }else if (t=='a'){
-      document.getElementById('adq').style.display="flex"
-      document.getElementById('admin_opt').style.display ='none'
-
-    }
 
   }
+  function show_addqa(){
+  
+      document.getElementById('adq').style.display="flex"
+      document.getElementById('admin_opt').style.display ='none'
+      }
   function addq(){
     pywebview.api.addaquestion(document.getElementById("q").value,
     document.getElementById("a").value,
@@ -134,6 +151,15 @@
     }
 
   }
+  function deleteq(qn){
+    pywebview.api.deletequestion(qn).then(display_manage)
+      
+  }
+  
+  function deletel(qn){
+    pywebview.api.deletescore(qn).then(display_managel)
+      
+  }
   
   function lback_menu(){
     
@@ -144,8 +170,21 @@
     document.getElementById("lcon").insertAdjacentHTML("beforeend",data)
   }
   
+  function searchq(q){
+    pywebview.api.searchquestion(document.getElementById("qser").value).then(display_manage)
+  
+  }
+  function searchl(){
+    pywebview.api.searchscore(document.getElementById("lser").value).then(display_managel)
+  
+  }
+  
   function display_manage(data){
-    document.getElementById("mcon").insertAdjacentHTML("beforeend",data)
+    document.getElementById("qincon").innerHTML=data
+  }
+  
+  function display_managel(data){
+    document.getElementById("lincon").innerHTML=data
   }
   function show_leaderboard(){
     pywebview.api.leaderboard().then(display_leaderboard)
@@ -166,14 +205,14 @@
   }
     function intro(){
   setTimeout(() =>{
-    document.getElementById('logointro').style.marginTop='-150px';
     pywebview.api.connect()
     setTimeout(()=>{
-      
+      document.getElementById('menu').style.marginTop ='500px'
       document.getElementById('introcont').style.opacity ='0'
       setTimeout(()=>{document.getElementById('introcont').style.display ='none'
       document.getElementById('menu').style.display ='flex';
-      document.getElementById('menu').style.opacity ='1'},500)
+      document.getElementById('menu').style.opacity ='1'
+      document.getElementById('menu').style.marginTop ='0px'},500)
     },500)
     
     
@@ -182,13 +221,20 @@
 intro()
 
 function go() {
+      document.getElementById('menu').style.marginTop ='500px'
     document.getElementById('menu').style.opacity ='0'
+    setTimeout(()=>{document.getElementById('loginpg').style.marginTop ='500px'
       setTimeout(()=>{document.getElementById('menu').style.display ='none'
+    document.getElementById('menu').style.opacity ='1'
+      document.getElementById('menu').style.marginTop ='0px'
       document.getElementById('loginpg').style.display ='flex';
-      document.getElementById('loginpg').style.opacity ='1'},500)
+      document.getElementById('loginpg').style.marginTop ='0px'
+      document.getElementById('loginpg').style.opacity ='1'},500)},700)
+      
 }
 function play(){
   document.getElementById('loginpg').style.opacity ='0'
+  document.getElementById('loginpg').style.display ='none'
   pywebview.api.play(document.getElementById("name").value).then(manage)
 }
 function show_admin_mq(){
@@ -196,6 +242,12 @@ function show_admin_mq(){
   document.getElementById('manq').style.display="flex"
   document.getElementById('admin_opt').style.display ='none'
   pywebview.api.disp_managequestion().then(display_manage)
+}
+function show_admin_ml(){
+  
+  document.getElementById('manal').style.display="flex"
+  document.getElementById('admin_opt').style.display ='none'
+  pywebview.api.disp_managelead().then(display_managel)
 }
 function manage(data){
   if(data.type==="q"){
@@ -255,6 +307,9 @@ function update_q(qn){
   document.getElementById("ca-"+qn).innerText,
   ).then(display_manage)
 }
+function update_l(id){
+  pywebview.api.updatescore(id,document.getElementById("sc-"+id).innerText).then(display_managel)
+}
 function select(o){
   console.log(o)
   if(o==="o1"){
@@ -302,9 +357,45 @@ function select(o){
     flex-direction: column;
     overflow-y: auto;
     align-items: center;
-    background-color: rgb(218, 102, 40);
+    background-image: linear-gradient(to right, rgb(255 166 37) , rgb(255 223 76));
     text-align: center;
     color: white ;
+  }
+  .manq{
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    overflow-y: auto;
+    align-items: center;
+    background-image: linear-gradient(to right, rgb(196, 74, 74) , rgb(255, 42, 0));
+    text-align: center;
+    color: white ;
+  }
+  .manal{
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    overflow-y: auto;
+    align-items: center;
+    background-image: linear-gradient(to right, rgb(106, 53, 156) , rgb(181, 137, 214));
+    text-align: center;
+    color: white ;
+  }
+  ::placeholder {
+    color: white ;
+  }
+  .manq input{
+  width:500px;
+  margin-bottom:50px;
+  border:1px solid white;
+  }
+  
+  .manal input{
+  width:500px;
+  margin-bottom:50px;
+  border:1px solid white;
   }
   .lcontainer  button{
     width: 65px;
@@ -320,10 +411,38 @@ function select(o){
   background-color: white ;
   color: black ;
 }
+  .lmcontainer  button{
+    width: 65px;
+  border-radius: 500px;
+  color:white;
+  font-weight: bold;
+  background-color: rgba(0,0,0,0);
+  border: 2px solid white;
+  transition: all 0.5s ease-in-out ;
+  
+}
+.lmcontainer  button:hover{
+  background-color: white ;
+  color: black ;
+}
+#lincon{
+  width:95%;
+}
+#qincon{
+  width:95%;
+}
   .lcontainer{
     display: flex;
     flex-direction: column;
-    width: 65%;
+    width: 95%;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .lmcontainer{
+    display: flex;
+    flex-direction: column;
+    width: 95%;
     align-items: center;
     text-align: center;
   }
@@ -342,6 +461,14 @@ function select(o){
     align-items: center;
     text-align: center;
   }
+  .lcontainer input{
+    width:300px;
+  
+  }
+
+  .lrow div{
+    flex-basis: auto
+  }
   .lrow{
     
     display: flex;
@@ -357,6 +484,10 @@ function select(o){
     justify-content: space-between;
     align-items: center;
     text-align: center;
+  }
+
+  i,button{
+    cursor: pointer;
   }
 
   .instructions{
@@ -418,7 +549,17 @@ function select(o){
   background-color: rgba(0,0,0,0);
   border: 2px solid white;
   transition: all 0.5s ease-in-out ;
+  font-family: video,serif;
+  font-weight: 400;
+  font-style: normal;
   
+}
+:-ms-input-placeholder { 
+ color: white;
+}
+
+::-ms-input-placeholder { 
+ color: white;
 }
 
 .admin_opt button:hover{
@@ -463,10 +604,21 @@ function select(o){
     background-color: #181818;
     color: white ;
     display:none;
+  transition: all 0.5s ease-in-out ;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
+  }
+  .backtxt{
+  position:absolute;
+  left:10px;
+  top:10px;
+  }
+  .backtxtl{
+  position:absolute;
+  left:10px;
+  top:10px;
   }
   body,html {
     font-size: 15pt;
@@ -474,7 +626,7 @@ function select(o){
     color:white ;
     height: 100%;
     overflow: hidden ;
-    background-color: black ;
+    background-color: #181818 ;
     font-family: video,serif;
     font-weight: 500;
     font-style: normal;
@@ -532,12 +684,12 @@ function select(o){
 
 @keyframes lgbt{
   
-  0%{ background-color: #E83737;  }
-  20%{ background-color: #31CF1B;  }
-  40%{ background-color: #3780E8;  }
-  60%{ background-color: #B2CA06;  }
-  80%{ background-color: #E837E7;  }
-  100%{ background-color: #E83737;  }
+  0%{ background-image:  linear-gradient(to right, rgb(196, 74, 74) , rgb(255, 0, 0)); }
+  20%{ background-image:linear-gradient(to right, rgb(74, 196, 76) , rgb(4, 255, 0)) ;  }
+  40%{ background-image:linear-gradient(to right, rgb(74, 119, 196) , rgb(0, 115, 255)) ;  }
+  60%{ background-image:linear-gradient(to right, rgb(196, 182, 74) , rgb(255, 234, 0)) ;  }
+  80%{ background-image:linear-gradient(to right, rgb(196, 74, 172) , rgb(255, 0, 230)) ;  }
+  100%{ background-image:linear-gradient(to right, rgb(196, 74, 74) , rgb(255, 0, 0)) ;  }
   
   
 }
@@ -568,6 +720,9 @@ input{
   border: 1px solid #535353;
   border-radius: 5px;
   padding: 15px;
+  font-family: video,serif;
+  font-weight: 200;
+  font-style: normal;
   
   border-bottom: 1px solid white;
   background-color: rgba(0,0,0,0)
@@ -599,11 +754,11 @@ button{
   display: none ;
   justify-content: center ;
   align-items: center ;
+  transition: all 1s ease-in-out ;
   width: 100%;
-  
+  margin-top: 500px;
   height: 100%;
   flex-direction: column ;
-  transition: opacity 0.5s ease-in-out ;
   background-color: #181818;
 }
 
@@ -614,6 +769,9 @@ button{
   background-color: rgba(0,0,0,0);
   border: 2px solid white;
   transition: all 0.5s ease-in-out ;
+  font-family: video,serif;
+  font-weight: 400;
+  font-style: normal;
   
 }
 
