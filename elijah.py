@@ -3,7 +3,7 @@ import uuid
 import random
 from datetime import date
 import webview
-mydb = mysql.connector.connect(host='localhost',user='root',passwd='',db='project')
+mydb = mysql.connector.connect(host='localhost',user='root',passwd='2005',db='project')
 if mydb.is_connected()==True:
     print('Database Established')
     print()
@@ -338,4 +338,4 @@ ht = ''
 with open('elijah.html', 'r') as f:
     ht = str(f.read())
     window = webview.create_window('Computer Project', html=ht, js_api=api)
-    webview.start(debug=True,gui='egdechromium')
+    webview.start(debug=True)
