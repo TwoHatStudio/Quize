@@ -118,7 +118,7 @@
     
   let ca=null
   let n=null
-  let ct = ''
+  let ct = 'm'
   
   function backbt(h,f){
       document.getElementById(f).style.display="flex"
@@ -640,6 +640,7 @@ function select(o){
   width: 100%;
   height: 100%;
   z-index: 1;
+  transition: background-image 0.2s ease-in-out;
   animation-name: lgbt;
   animation-duration: 5s;
   display: flex;
@@ -647,7 +648,6 @@ function select(o){
   justify-content: center;
   align-items: center ;
   animation-iteration-count: infinite;
-  transition: all 0.5s ease-in-out;
   background-color:white;
 }
 
